@@ -5,7 +5,6 @@ import { Trip } from "../src/models/Trip";
 import { User } from "../src/models/User";
 import { Booking } from "../src/models/Booking";
 
-// Load environment variables from .env.local
 dotenv.config({ path: ".env.local" });
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/van_bus_booking";
@@ -19,7 +18,6 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log("✓ Connected to MongoDB.");
 
-    // Clear existing test collections
     console.log("Clearing existing collections...");
     await Booking.deleteMany({});
     await Trip.deleteMany({});
@@ -30,19 +28,19 @@ async function seed() {
     // 1. Seed Users
     console.log("Seeding Users...");
     const customer = await User.create({
-      name: "Ye Htet Aung",
-      email: "yehtetaung@example.com",
-      passwordHash: "demo_hash_ye_htet_aung",
+      name: "Sample Customer",
+      email: "customer@example.com",
+      passwordHash: "demo_hash_customer",
       role: "customer",
     });
 
     const admin = await User.create({
-      name: "Transport Admin",
+      name: "Admin",
       email: "admin@transport.com",
       passwordHash: "demo_hash_admin",
       role: "administrator",
     });
-    console.log(`✓ Seeded 2 users: Customer (${customer.name}) and Admin (${admin.name})`);
+    console.log(`✓ Seeded 2 users: Customer and Admin`);
 
     // 2. Seed Vehicles
     console.log("Seeding Vehicles...");
@@ -65,7 +63,7 @@ async function seed() {
     console.log("Seeding Trips...");
     const now = new Date();
 
-    const trip1Future = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days ahead
+    const trip1Future = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
     const trip1 = await Trip.create({
       vehicleId: van1._id,
       origin: "Bangkok",
@@ -75,7 +73,7 @@ async function seed() {
       status: "scheduled",
     });
 
-    const trip2Future = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000); // 4 days ahead
+    const trip2Future = new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000);
     const trip2 = await Trip.create({
       vehicleId: bus1._id,
       origin: "Bangkok",
@@ -85,8 +83,8 @@ async function seed() {
       status: "scheduled",
     });
 
-    const trip3Past = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
-    const trip3Departed = await Trip.create({
+    const trip3Past = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+    await Trip.create({
       vehicleId: van1._id,
       origin: "Phuket",
       destination: "Krabi",
@@ -96,28 +94,28 @@ async function seed() {
     });
     console.log(`✓ Seeded 3 trips: 2 scheduled upcoming trips & 1 departed trip`);
 
-    // 4. Seed Initial Bookings (Ye Htet Aung's module)
+    // 4. Seed Initial Bookings
     console.log("Seeding Bookings...");
-    const booking1 = await Booking.create({
+    await Booking.create({
       tripId: trip1._id,
       userId: customer._id,
       seatNumbers: [1, 2],
-      passengerName: "Ye Htet Aung",
+      passengerName: "Sample Customer",
       status: "confirmed",
     });
 
-    const booking2 = await Booking.create({
+    await Booking.create({
       tripId: trip2._id,
       userId: customer._id,
       seatNumbers: [5, 6, 7],
-      passengerName: "Ye Htet Aung",
+      passengerName: "Sample Customer",
       status: "confirmed",
     });
     console.log(`✓ Seeded 2 bookings:`);
     console.log(`  - Trip 1 (${trip1.origin}→${trip1.destination}): Seats [1, 2]`);
     console.log(`  - Trip 2 (${trip2.origin}→${trip2.destination}): Seats [5, 6, 7]`);
 
-    // 5. Ensure indexes are built (especially the compound partial unique index)
+    // 5. Ensure indexes
     await Booking.init();
     console.log("✓ Booking indexes initialized (Unique compound partial index verified).");
 
@@ -135,4 +133,3 @@ async function seed() {
 }
 
 seed();
-
