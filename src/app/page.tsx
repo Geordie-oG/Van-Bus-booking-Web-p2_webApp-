@@ -20,33 +20,12 @@ export default function Home() {
           selection, and instant reservations.
         </p>
 
-        {/* Member Ownership Banner */}
-        <div className="bg-white border-2 border-emerald-500/20 rounded-2xl p-5 shadow-sm max-w-xl mx-auto text-left flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">
-            YA
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 text-base">Ye Htet Aung</span>
-              <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">
-                Member 2
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-emerald-700 mt-0.5">
-              Role: Booking & Seat Availability Lead
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              Responsible for the reservation workflow, live seat layout, RESTful booking endpoints, duplicate-seat prevention, and cancellation logic.
-            </p>
-          </div>
-        </div>
-
         <div className="flex flex-wrap justify-center gap-3 pt-2">
           <Link
             href="/trips"
             className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
           >
-            <span>Browse Trips & Reserve</span>
+            <span>Browse Trips &amp; Reserve</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
@@ -66,12 +45,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Ye Htet Aung Deliverables Grid */}
+      {/* Core Deliverables Grid */}
       <section className="space-y-6">
         <div className="text-center max-w-xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900">Member 2 Core Deliverables</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Booking &amp; Seat Availability Module</h2>
           <p className="text-slate-500 text-sm mt-1">
-            All requirements assigned in the project task division guide have been implemented and verified.
+            All reservation requirements have been implemented and verified.
           </p>
         </div>
 
@@ -120,7 +99,7 @@ export default function Home() {
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
               <RefreshCw className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Cancellation & Seat Release</h3>
+            <h3 className="font-bold text-slate-900 text-base">Cancellation &amp; Seat Release</h3>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
               Customers can review and cancel their reservations before departure time; cancelled bookings instantly release seats for new travelers.
             </p>
@@ -137,31 +116,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Shared Architecture Context */}
-      <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-        <h3 className="font-bold text-slate-900 text-lg mb-4">Project 2 Team Work Division Overview</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="font-bold text-slate-800">Member 1 — Li Hout Van</div>
-            <div className="text-xs text-slate-500 mt-1">Vehicle & Trip Management Lead</div>
-            <p className="text-xs text-slate-600 mt-2">Vehicle CRUD, Trip CRUD, admin scheduling, capacity/status validation.</p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-300">
-            <div className="font-bold text-emerald-950">Member 2 — Ye Htet Aung (Your Part)</div>
-            <div className="text-xs text-emerald-700 font-medium mt-1">Booking & Seat Availability Lead</div>
-            <p className="text-xs text-emerald-800 mt-2">Booking CRUD, seat layout, availability API, duplicate-seat prevention, confirmation, cancellation.</p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="font-bold text-slate-800">Member 3 — Zaw Zaw Naing</div>
-            <div className="text-xs text-slate-500 mt-1">Authentication & Customer UI Lead</div>
-            <p className="text-xs text-slate-600 mt-2">Registration/login, roles, protected routes, trip search, customer pages, responsive UI.</p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
-

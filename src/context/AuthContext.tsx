@@ -45,11 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (savedPersona) {
           setUser(JSON.parse(savedPersona));
         } else {
-          // Default demo customer persona for Ye Htet Aung
+          // Default demo customer persona (no active session)
           const defaultPersona: UserSession = {
             userId: "670f1a2b3c4d5e6f7a8b9c0d",
-            name: "Ye Htet Aung",
-            email: "yehtetaung@example.com",
+            name: "Guest Customer",
+            email: "guest@example.com",
             role: "customer",
           };
           setUser(defaultPersona);
@@ -117,8 +117,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const switchPersona = (role: "customer" | "administrator", name?: string) => {
     const newPersona: UserSession = {
       userId: role === "administrator" ? "670f1a2b3c4d5e6f7a8b9c0e" : "670f1a2b3c4d5e6f7a8b9c0d",
-      name: name || (role === "administrator" ? "Transport Admin" : "Ye Htet Aung"),
-      email: role === "administrator" ? "admin@transport.com" : "yehtetaung@example.com",
+      name: name || (role === "administrator" ? "Admin" : "Customer"),
+      email: role === "administrator" ? "admin@transport.com" : "customer@example.com",
       role,
     };
     setUser(newPersona);

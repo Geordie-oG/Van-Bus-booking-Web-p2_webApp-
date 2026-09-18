@@ -32,10 +32,10 @@ export default function LoginPage() {
 
   const handleQuickDemo = (role: "customer" | "administrator") => {
     if (role === "customer") {
-      switchPersona("customer", "Ye Htet Aung");
+      switchPersona("customer", "Customer");
       router.push("/trips");
     } else {
-      switchPersona("administrator", "Transport Admin");
+      switchPersona("administrator", "Admin");
       router.push("/admin/vehicles");
     }
   };
@@ -65,7 +65,7 @@ export default function LoginPage() {
               onClick={() => handleQuickDemo("customer")}
               className="py-2 px-3 bg-white hover:bg-emerald-100/50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-semibold shadow-sm transition-all"
             >
-              Ye Htet Aung (Customer)
+              Customer Login
             </button>
             <button
               type="button"

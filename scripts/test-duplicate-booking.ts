@@ -25,7 +25,7 @@ function assert(condition: boolean, testName: string, detail?: string) {
 
 async function runTests() {
   console.log("==================================================");
-  console.log("🧪 Running Member 2 (Ye Htet Aung) Test Suite");
+  console.log("🧪 Booking & Seat Availability Test Suite");
   console.log("Testing: Booking CRUD, Availability, and Concurrency Duplicate Protection");
   console.log("==================================================\n");
 
@@ -44,7 +44,7 @@ async function runTests() {
 
     // Setup mock entities
     const customer = await User.create({
-      name: "Ye Htet Aung (Test Customer)",
+      name: "Test Customer",
       email: "test.customer@example.com",
       passwordHash: "hash123",
       role: "customer",
@@ -107,7 +107,7 @@ async function runTests() {
       tripId: activeTrip._id,
       userId: customer._id,
       seatNumbers: [1, 2],
-      passengerName: "Ye Htet Aung",
+      passengerName: "Test Customer",
       status: "confirmed",
     });
     assert(
@@ -214,7 +214,7 @@ async function runTests() {
     console.log("\n==================================================");
     console.log(`🏁 Test Summary: ${passedTests}/${totalTests} tests passed`);
     if (passedTests === totalTests) {
-      console.log("🎉 All Member 2 Booking & Seat Availability tests PASSED!");
+      console.log("🎉 All Booking & Seat Availability tests PASSED!");
     } else {
       console.log("⚠️ Some tests failed. Check logs above.");
     }

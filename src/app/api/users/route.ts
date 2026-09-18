@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const user = await User.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      passwordHash: `hash_${password}`, // Simplified hash placeholder for Member 3
+      passwordHash: `hash_${password}`,
       role: role || "customer",
     });
 
