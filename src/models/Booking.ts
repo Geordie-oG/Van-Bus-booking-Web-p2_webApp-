@@ -74,13 +74,14 @@ const BookingSchema = new Schema<IBooking>(
 );
 
 // Compound partial unique index for zero-duplicate race condition protection.
-// Ensures that for a given tripId, any seat in seatNumbers cannot be duplicated across active (non-cancelled) bookings.
-// When a booking's status changes to 'cancelled', it is excluded from this index, releasing the seats.
+// Ensures that for a given tripId, any seat cannot be double-booked across confirmed or pending bookings.
+// Note: Atlas M0 free tier only supports equality ($eq/$in) in partialFilterExpression.
+// Using $in: ["confirmed", "pending"] covers all active statuses; cancelled bookings are excluded.
 BookingSchema.index(
   { tripId: 1, seatNumbers: 1 },
   {
     unique: true,
-    partialFilterExpression: { status: { $ne: "cancelled" } },
+    partialFilterExpression: { status: { $in: ["confirmed", "pending"] } },
   }
 );
 
