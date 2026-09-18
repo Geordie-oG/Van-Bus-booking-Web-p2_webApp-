@@ -1,121 +1,55 @@
-import Link from "next/link";
-import { Bus, Ticket, ShieldCheck, CheckCircle2, ShieldAlert, ArrowRight, Zap, RefreshCw, Layers } from "lucide-react";
-
 export default function Home() {
   return (
-    <div className="space-y-16 py-6">
-      {/* Hero Section */}
-      <section className="text-center max-w-3xl mx-auto space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          CSX4107 Project 2 — Web Application Development
-        </div>
+    <main style={{ fontFamily: "monospace", padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+      <h1>Van &amp; Bus Booking System — API</h1>
+      <p>CSX4107 Project 2 · Booking &amp; Seat Availability Module</p>
+      <hr />
+      <h2>Available Endpoints</h2>
 
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-          Van and Bus <span className="text-emerald-600">Booking System</span>
-        </h1>
+      <h3>Bookings</h3>
+      <ul>
+        <li>GET /api/bookings</li>
+        <li>POST /api/bookings</li>
+        <li>GET /api/bookings/:id</li>
+        <li>PATCH /api/bookings/:id</li>
+        <li>DELETE /api/bookings/:id</li>
+      </ul>
 
-        <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-          A full-stack web application designed to digitize transport trip management, live seat
-          selection, and instant reservations.
-        </p>
+      <h3>Trips</h3>
+      <ul>
+        <li>GET /api/trips</li>
+        <li>POST /api/trips</li>
+        <li>GET /api/trips/:id</li>
+        <li>PATCH /api/trips/:id</li>
+        <li>DELETE /api/trips/:id</li>
+        <li>GET /api/trips/:id/availability</li>
+      </ul>
 
-        <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Link
-            href="/trips"
-            className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-          >
-            <span>Browse Trips &amp; Reserve</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/my-bookings"
-            className="px-6 py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-semibold text-sm shadow-sm transition-all flex items-center gap-2"
-          >
-            <Ticket className="w-4 h-4 text-slate-500" />
-            <span>My Bookings</span>
-          </Link>
-          <Link
-            href="/admin/bookings"
-            className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-sm shadow-sm transition-all flex items-center gap-2"
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Admin View</span>
-          </Link>
-        </div>
-      </section>
+      <h3>Vehicles</h3>
+      <ul>
+        <li>GET /api/vehicles</li>
+        <li>POST /api/vehicles</li>
+        <li>GET /api/vehicles/:id</li>
+        <li>PATCH /api/vehicles/:id</li>
+        <li>DELETE /api/vehicles/:id</li>
+      </ul>
 
-      {/* Core Deliverables Grid */}
-      <section className="space-y-6">
-        <div className="text-center max-w-xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900">Booking &amp; Seat Availability Module</h2>
-          <p className="text-slate-500 text-sm mt-1">
-            All reservation requirements have been implemented and verified.
-          </p>
-        </div>
+      <h3>Users</h3>
+      <ul>
+        <li>GET /api/users</li>
+        <li>POST /api/users</li>
+      </ul>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-              <Zap className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Seat Availability API</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              <code>GET /api/trips/:id/availability</code> returns real-time booked seats, total capacity, available seats, and remaining vacancy for vans and buses.
-            </p>
-          </div>
+      <h3>Auth</h3>
+      <ul>
+        <li>POST /api/auth/register</li>
+        <li>POST /api/auth/login</li>
+        <li>POST /api/auth/logout</li>
+        <li>GET /api/auth/me</li>
+      </ul>
 
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-              <ShieldAlert className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Zero Duplicate-Booking Protection</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Enforces a compound partial unique MongoDB index <code>(tripId + seatNumbers)</code> excluding cancelled bookings, eliminating race condition double-bookings.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4">
-              <Bus className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Interactive Seat Map UI</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Responsive vehicle cabin visualization with driver front, aisles, and color-coded seat states (Available, Selected, and Booked).
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
-              <Ticket className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Booking CRUD Operations</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Full RESTful endpoints: <code>GET/POST /api/bookings</code> and <code>GET/PATCH/DELETE /api/bookings/:id</code> adhering to the shared JSON response contract.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
-              <RefreshCw className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Cancellation &amp; Seat Release</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Customers can review and cancel their reservations before departure time; cancelled bookings instantly release seats for new travelers.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:border-emerald-300 transition-all">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
-              <Layers className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-base">Automated Test Suite</h3>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Comprehensive test script (<code>npm run test:booking</code>) validating normal booking, concurrent duplicate seat rejection, capacity bounds, and seat release.
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
+      <hr />
+      <p>All responses: <code>{"{ success, data, message }"}</code> or <code>{"{ success, error }"}</code></p>
+    </main>
   );
 }
