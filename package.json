@@ -3,17 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "seed": "tsx scripts/seed.ts",
-    "test:booking": "tsx scripts/test-duplicate-booking.ts"
+    "dev": "node node_modules/next/dist/bin/next dev",
+    "build": "node node_modules/next/dist/bin/next build",
+    "start": "node node_modules/next/dist/bin/next start",
+    "lint": "node node_modules/next/dist/bin/next lint",
+    "seed": "node node_modules/tsx/dist/cli.mjs scripts/seed.ts",
+    "test:booking": "node node_modules/tsx/dist/cli.mjs scripts/test-duplicate-booking.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.48.0",
     "mongoose": "^8.9.5",
     "next": "^15.1.6",
     "react": "^19.0.0",
