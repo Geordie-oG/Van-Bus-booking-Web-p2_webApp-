@@ -25,10 +25,7 @@ export async function POST(request: NextRequest) {
     // Verify password with bcrypt
     const isMatch = await comparePassword(password, user.passwordHash);
     if (!isMatch) {
-      // Check fallback plain text hash for seeded demo users
-      if (user.passwordHash !== password && !user.passwordHash.includes(password)) {
-        return errorResponse("Invalid email or password", 401);
-      }
+      return errorResponse("Invalid email or password", 401);
     }
 
     const payload = {

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { User } from "@/models";
+import { hashPassword } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -24,10 +25,16 @@ export async function POST(request: NextRequest) {
       return errorResponse("name, email, and password are required", 400);
     }
 
+    if (password.length < 6) {
+      return errorResponse("Password must be at least 6 characters long", 400);
+    }
+
+    const hashedPassword = await hashPassword(password);
+
     const user = await User.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      passwordHash: `hash_${password}`,
+      passwordHash: hashedPassword,
       role: role || "customer",
     });
 

@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import { Vehicle } from "../src/models/Vehicle";
 import { Trip } from "../src/models/Trip";
 import { User } from "../src/models/User";
@@ -27,20 +28,23 @@ async function seed() {
 
     // 1. Seed Users
     console.log("Seeding Users...");
+    const customerHash = await bcrypt.hash("demo123", 10);
+    const adminHash = await bcrypt.hash("demo123", 10);
+
     const customer = await User.create({
       name: "Sample Customer",
       email: "customer@example.com",
-      passwordHash: "demo_hash_customer",
+      passwordHash: customerHash,
       role: "customer",
     });
 
     const admin = await User.create({
       name: "Admin",
       email: "admin@transport.com",
-      passwordHash: "demo_hash_admin",
+      passwordHash: adminHash,
       role: "administrator",
     });
-    console.log(`✓ Seeded 2 users: Customer and Admin`);
+    console.log(`✓ Seeded 2 users: Customer and Admin (password: demo123)`);
 
     // 2. Seed Vehicles
     console.log("Seeding Vehicles...");

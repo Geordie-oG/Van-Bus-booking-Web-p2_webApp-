@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 import { User, IUser } from "@/models";
 import { connectDB } from "./db";

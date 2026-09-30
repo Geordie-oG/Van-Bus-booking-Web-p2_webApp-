@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
     const destination = searchParams.get("destination");
     const status = searchParams.get("status") || "scheduled";
 
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const query: Record<string, any> = {};
-    if (origin) query.origin = new RegExp(origin, "i");
-    if (destination) query.destination = new RegExp(destination, "i");
+    if (origin) query.origin = { $regex: escapeRegex(origin), $options: "i" };
+    if (destination) query.destination = { $regex: escapeRegex(destination), $options: "i" };
     if (status !== "all") query.status = status;
 
     const trips = await Trip.find(query)
