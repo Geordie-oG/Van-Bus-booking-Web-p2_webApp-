@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Van and Bus Booking System — API",
-  description: "Next.js + MongoDB REST API for Van and Bus Reservation System - CSX4107 Project 2",
+  title: "GoRoute | Van & Bus Booking",
+  description: "Book van and bus trips quickly, safely and conveniently.",
 };
 
 export default function RootLayout({
