@@ -2,6 +2,8 @@
 
 import { use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+
 
 interface Vehicle {
   _id?: string;
@@ -46,94 +48,6 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-// ============================================================
-// TEMPORARY DEMO DATA - REMOVE BEFORE FINAL PUSH
-// ============================================================
-
-const DEMO_TRIPS: Record<string, Trip> = {
-  "demo-trip-1": {
-    _id: "demo-trip-1",
-    origin: "Bangkok",
-    destination: "Chiang Mai",
-    departureTime: "2026-10-01T08:30:00",
-    fare: 650,
-    status: "scheduled",
-    vehicleId: {
-      _id: "demo-bus-1",
-      plateNumber: "BUS-1201",
-      type: "bus",
-      capacity: 40,
-      status: "available",
-    },
-  },
-
-  "demo-trip-2": {
-    _id: "demo-trip-2",
-    origin: "Bangkok",
-    destination: "Chiang Mai",
-    departureTime: "2026-10-01T11:00:00",
-    fare: 720,
-    status: "scheduled",
-    vehicleId: {
-      _id: "demo-van-1",
-      plateNumber: "VAN-2204",
-      type: "van",
-      capacity: 12,
-      status: "available",
-    },
-  },
-
-  "demo-trip-3": {
-    _id: "demo-trip-3",
-    origin: "Bangkok",
-    destination: "Pattaya",
-    departureTime: "2026-10-02T09:15:00",
-    fare: 280,
-    status: "scheduled",
-    vehicleId: {
-      _id: "demo-bus-2",
-      plateNumber: "BUS-3308",
-      type: "bus",
-      capacity: 32,
-      status: "available",
-    },
-  },
-};
-
-const DEMO_BOOKED_SEATS: Record<string, number[]> = {
-  "demo-trip-1": [2, 5, 8, 13, 17, 22, 27, 31, 36],
-  "demo-trip-2": [2, 6, 9],
-  "demo-trip-3": [1, 4, 7, 12, 18, 23, 29],
-};
-
-function createDemoAvailability(trip: Trip): Availability {
-  const bookedSeats = DEMO_BOOKED_SEATS[trip._id] || [];
-
-  const availableSeats = Array.from(
-    { length: trip.vehicleId.capacity },
-    (_, index) => index + 1
-  ).filter((seat) => !bookedSeats.includes(seat));
-
-  return {
-    tripId: trip._id,
-    origin: trip.origin,
-    destination: trip.destination,
-    departureTime: trip.departureTime,
-    status: trip.status,
-
-    vehicle: {
-      plateNumber: trip.vehicleId.plateNumber,
-      type: trip.vehicleId.type,
-      capacity: trip.vehicleId.capacity,
-    },
-
-    totalCapacity: trip.vehicleId.capacity,
-    bookedSeats,
-    availableSeats,
-    remainingCapacity: availableSeats.length,
-    isBookingAllowed: true,
-  };
-}
 
 export default function SeatSelectionPage({
   params,
@@ -150,34 +64,12 @@ export default function SeatSelectionPage({
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     async function loadTrip() {
       try {
         setLoading(true);
         setError("");
-
-        // ======================================================
-        // TEMPORARY DEMO MODE - REMOVE BEFORE FINAL PUSH
-        // ======================================================
-
-        if (id.startsWith("demo-trip-")) {
-          const demoTrip = DEMO_TRIPS[id];
-
-          if (!demoTrip) {
-            throw new Error("Demo trip not found.");
-          }
-
-          setTrip(demoTrip);
-          setAvailability(createDemoAvailability(demoTrip));
-          setDemoMode(true);
-          return;
-        }
-
-        // ======================================================
-        // REAL API
-        // ======================================================
 
         const [availabilityResponse, tripResponse] = await Promise.all([
           fetch(`/api/trips/${id}/availability`, {
@@ -232,7 +124,6 @@ export default function SeatSelectionPage({
 
         setAvailability(availabilityResult.data);
         setTrip(tripResult.data);
-        setDemoMode(false);
       } catch (err) {
         setError(
           err instanceof Error
@@ -276,7 +167,7 @@ export default function SeatSelectionPage({
   if (loading) {
     return (
       <main className="seat-page">
-        <CustomerNavbar />
+      <Navbar />
 
         <div className="seat-loading">
           <div className="loading-spinner" />
@@ -292,7 +183,7 @@ export default function SeatSelectionPage({
   if (error || !availability || !trip) {
     return (
       <main className="seat-page">
-        <CustomerNavbar />
+      <Navbar />
 
         <div className="seat-loading">
           <div className="state-symbol">!</div>
@@ -318,7 +209,8 @@ export default function SeatSelectionPage({
 
   return (
     <main className="seat-page">
-      <CustomerNavbar />
+      <Navbar />
+
 
       <section className="seat-topbar">
         <div className="seat-container">
@@ -355,24 +247,6 @@ export default function SeatSelectionPage({
 
       <section className="seat-content">
         <div className="seat-container">
-          {demoMode && (
-            <div
-              style={{
-                marginBottom: "20px",
-                padding: "12px 16px",
-                borderRadius: "10px",
-                background: "#fff7ed",
-                border: "1px solid #fed7aa",
-                color: "#9a3412",
-                fontSize: "14px",
-                fontWeight: 600,
-              }}
-            >
-              Demo mode: sample seat availability is being used for frontend
-              testing.
-            </div>
-          )}
-
           <div className="seat-heading">
             <div>
               <span className="results-eyebrow">
@@ -757,55 +631,6 @@ function createSeatRows(
   return rows;
 }
 
-function CustomerNavbar() {
-  return (
-    <header className="navbar">
-      <div className="nav-container">
-        <a href="/" className="brand">
-          <span className="brand-icon">
-            <BusIcon />
-          </span>
-
-          <span>
-            <strong>GoRoute</strong>
-            <small>VAN & BUS BOOKING</small>
-          </span>
-        </a>
-
-        <nav className="nav-links">
-          <a href="/">Home</a>
-
-          <a
-            className="active"
-            href="/trips"
-          >
-            Find Trips
-          </a>
-
-          <a href="/bookings">
-            My Bookings
-          </a>
-        </nav>
-
-        <div className="nav-actions">
-          <a
-            href="/login"
-            className="login-link"
-          >
-            Log in
-          </a>
-
-          <a
-            href="/register"
-            className="primary-button small-button"
-          >
-            Sign up
-          </a>
-        </div>
-      </div>
-    </header>
-  );
-}
 
 function BusIcon() {
   return (
@@ -817,6 +642,7 @@ function BusIcon() {
     </svg>
   );
 }
+
 
 function formatDate(date: Date) {
   return date.toLocaleDateString([], {

@@ -2,15 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-interface AuthUser {
-  userId?: string;
-  _id?: string;
-  id?: string;
-  name?: string;
-  email?: string;
-  role?: string;
-}
+import Navbar from "@/components/Navbar";
 
 interface Vehicle {
   plateNumber: string;
@@ -35,9 +27,17 @@ interface Booking {
   createdAt?: string;
 }
 
+interface AuthUser {
+  userId?: string;
+  _id?: string;
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+}
+
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState("");
@@ -47,10 +47,7 @@ export default function BookingsPage() {
     setError("");
 
     try {
-      const authResponse = await fetch("/api/auth/me", {
-        cache: "no-store",
-      });
-
+      const authResponse = await fetch("/api/auth/me", { cache: "no-store" });
       const authResult = await authResponse.json();
 
       if (!authResponse.ok) {
@@ -58,10 +55,7 @@ export default function BookingsPage() {
       }
 
       const currentUser: AuthUser = authResult.data;
-      setUser(currentUser);
-
-      const userId =
-        currentUser.userId || currentUser._id || currentUser.id;
+      const userId = currentUser.userId || currentUser._id || currentUser.id;
 
       if (!userId) {
         throw new Error("Unable to identify the logged-in user.");
@@ -69,24 +63,18 @@ export default function BookingsPage() {
 
       const response = await fetch(
         `/api/bookings?userId=${encodeURIComponent(userId)}`,
-        {
-          cache: "no-store",
-        }
+        { cache: "no-store" }
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || result.error || "Unable to load bookings"
-        );
+        throw new Error(result.message || result.error || "Unable to load bookings");
       }
 
       setBookings(result.data || []);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unable to load bookings"
-      );
+      setError(err instanceof Error ? err.message : "Unable to load bookings");
     } finally {
       setLoading(false);
     }
@@ -97,10 +85,7 @@ export default function BookingsPage() {
   }, []);
 
   async function cancelBooking(id: string) {
-    const confirmed = window.confirm(
-      "Are you sure you want to cancel this booking?"
-    );
-
+    const confirmed = window.confirm("Are you sure you want to cancel this booking?");
     if (!confirmed) return;
 
     setCancelling(id);
@@ -108,27 +93,19 @@ export default function BookingsPage() {
     try {
       const response = await fetch(`/api/bookings/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: "cancelled",
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled" }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || result.error || "Unable to cancel booking"
-        );
+        throw new Error(result.message || result.error || "Unable to cancel booking");
       }
 
       await loadBookings();
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "Unable to cancel booking"
-      );
+      alert(err instanceof Error ? err.message : "Unable to cancel booking");
     } finally {
       setCancelling("");
     }
@@ -136,16 +113,7 @@ export default function BookingsPage() {
 
   return (
     <main className="bookings-page">
-      <header className="bookings-header">
-        <Link href="/" className="bookings-logo">
-          GoRoute
-        </Link>
-
-        <div className="bookings-nav">
-          {user?.name && <span>Hello, {user.name}</span>}
-          <Link href="/">Find Trips</Link>
-        </div>
-      </header>
+      <Navbar />
 
       <section className="bookings-hero">
         <div>
@@ -157,7 +125,10 @@ export default function BookingsPage() {
 
       <section className="bookings-container">
         {loading && (
-          <div className="bookings-empty">Loading your bookings...</div>
+          <div className="bookings-empty">
+            <div className="loading-spinner" style={{ marginBottom: 16 }} />
+            Loading your bookings...
+          </div>
         )}
 
         {!loading && error && (
@@ -174,7 +145,7 @@ export default function BookingsPage() {
           <div className="bookings-empty">
             <h2>No bookings yet</h2>
             <p>Your booked journeys will appear here.</p>
-            <Link href="/" className="primary-action">
+            <Link href="/trips" className="primary-action">
               Find a Trip
             </Link>
           </div>
@@ -184,7 +155,6 @@ export default function BookingsPage() {
           !error &&
           bookings.map((booking) => {
             const trip = booking.tripId;
-
             if (!trip) return null;
 
             const departure = new Date(trip.departureTime);
@@ -198,11 +168,7 @@ export default function BookingsPage() {
                     <strong>{booking._id}</strong>
                   </div>
 
-                  <span
-                    className={`booking-status ${
-                      isCancelled ? "cancelled" : "confirmed"
-                    }`}
-                  >
+                  <span className={`booking-status ${isCancelled ? "cancelled" : "confirmed"}`}>
                     {booking.status}
                   </span>
                 </div>
@@ -268,10 +234,7 @@ export default function BookingsPage() {
                   <div>
                     <span>Total</span>
                     <strong>
-                      ฿
-                      {(
-                        (trip.fare || 0) * booking.seatNumbers.length
-                      ).toLocaleString()}
+                      ฿{((trip.fare || 0) * booking.seatNumbers.length).toLocaleString()}
                     </strong>
                   </div>
                 </div>
@@ -283,9 +246,7 @@ export default function BookingsPage() {
                       onClick={() => cancelBooking(booking._id)}
                       disabled={cancelling === booking._id}
                     >
-                      {cancelling === booking._id
-                        ? "Cancelling..."
-                        : "Cancel Booking"}
+                      {cancelling === booking._id ? "Cancelling..." : "Cancel Booking"}
                     </button>
                   </div>
                 )}

@@ -34,31 +34,28 @@ export default function RegisterPage() {
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role: "customer",
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role: "customer" }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.message || result.error || "Registration failed"
-        );
+        throw new Error(result.message || result.error || "Registration failed");
+      }
+
+      // Store user and token in localStorage for Navbar
+      if (result.data?.user) {
+        localStorage.setItem("user", JSON.stringify(result.data.user));
+      }
+      if (result.data?.token) {
+        localStorage.setItem("auth_token", result.data.token);
       }
 
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Registration failed"
-      );
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
     }

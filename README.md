@@ -1,6 +1,6 @@
-# 🚍 Van and Bus Booking System
+# 🚍 GoRoute — Van and Bus Booking System
 
-A full-stack web application built with **Next.js 15 (App Router)**, **MongoDB Atlas**, **Mongoose 8**, and **Tailwind CSS** for managing van and bus transport reservations, seat availability, and fleet operations.
+A modern, full-stack web application built with **Next.js 15 (App Router)**, **MongoDB Atlas**, **Mongoose 8**, and **Tailwind CSS** for managing van and bus transport reservations, live seat availability, customer bookings, and fleet operations.
 
 ---
 
@@ -16,15 +16,17 @@ A full-stack web application built with **Next.js 15 (App Router)**, **MongoDB A
 
 ## 🌟 Key Features
 
-- **Booking & Seat Management** — `GET/POST /api/bookings` and `GET/PATCH/DELETE /api/bookings/:id`
-- **Real-Time Seat Availability** — `GET /api/trips/:id/availability` calculates booked seats, total capacity, and remaining available seat numbers.
+- **Authenticated User Navbar & Profile** — Dynamic top header that displays authenticated user name, role badges (`Customer` / `Admin`), quick navigation links, and a secure logout action.
+- **Interactive Seat Selection Map** — Live visual seat grid for vans and buses showing booked vs available seats with real-time fare calculation.
+- **Booking & Seat Management** — `GET/POST /api/bookings` and `GET/PATCH/DELETE /api/bookings/:id`.
+- **Real-Time Seat Availability** — `GET /api/trips/:id/availability` dynamically calculates booked seats, total vehicle capacity, and remaining available seat numbers.
 - **Zero-Duplicate Concurrency Protection** — Compound partial unique MongoDB index on `(tripId, seatNumbers)` with `status $in ["confirmed", "pending"]` to prevent double-booking at database level.
 - **Business Rule Enforcement**:
   - Seat capacity boundaries enforced against vehicle specification.
   - Automatic seat release upon booking cancellation.
   - Departed or completed trips strictly reject new reservations.
-- **Authentication & Authorization** — JWT-based authentication using `bcryptjs` and `jsonwebtoken` with HTTP-Only cookies and Bearer token headers. Role support for `customer` and `administrator`.
-- **Fleet & Trip Management** — Admin vehicle tracking (plate number uniqueness, capacity, status) and trip scheduling.
+- **Authentication & Authorization** — JWT-based authentication using `bcryptjs` and `jsonwebtoken` with HTTP-Only cookies and local state persistence. Role support for `customer` and `administrator`.
+- **Admin Control Hub** — Admin portal for fleet vehicle tracking (plate number uniqueness, capacity, status) and route scheduling.
 
 ---
 
@@ -35,7 +37,7 @@ A full-stack web application built with **Next.js 15 (App Router)**, **MongoDB A
 | **Framework** | Next.js 15 (App Router, React 19) |
 | **Database** | MongoDB Atlas Cloud + Mongoose 8 ORM |
 | **Authentication** | JWT (`jsonwebtoken`) + Password Hashing (`bcryptjs`) |
-| **Styling** | Tailwind CSS + Lucide React Icons |
+| **Styling** | Custom Responsive CSS + Tailwind CSS + Lucide React Icons |
 | **Scripting / Testing** | TypeScript + `tsx` test runners |
 
 ---
@@ -50,7 +52,7 @@ npm install
 ```
 
 ### 2. Configure Environment Variables
-Create a `.env.local` file in the project root (or copy from `.env.example`):
+Create a `.env.local` file in the project root:
 
 ```env
 # MongoDB Atlas Connection String
@@ -79,12 +81,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🔑 Demo Login Accounts
 
-After running `npm run seed`, use these seeded credentials:
+After running `npm run seed`, use these seeded credentials for testing:
 
-| Account Type | Email | Password | Role |
-|---|---|---|---|
-| **Customer** | `customer@example.com` | `demo123` | `customer` |
-| **Administrator** | `admin@transport.com` | `demo123` | `administrator` |
+| Account Type | Email | Password | Role | Redirect |
+|---|---|---|---|---|
+| **Customer** | `customer@example.com` | `demo123` | `customer` | Home (`/`) |
+| **Administrator** | `admin@transport.com` | `demo123` | `administrator` | Admin Dashboard (`/admin`) |
 
 ---
 
@@ -133,9 +135,9 @@ All API responses follow a standardized JSON envelope:
 | `npm run dev` | Start development server on port 3000 |
 | `npm run build` | Build application for production deployment |
 
-To run full backend API smoke test against a running local server:
+To run full backend API tests:
 ```bash
-BASE=http://localhost:3000 node scripts/api-smoke-test.mjs
+npm run test:booking
 ```
 
 ---
@@ -145,14 +147,22 @@ BASE=http://localhost:3000 node scripts/api-smoke-test.mjs
 ```
 src/
 ├── app/
+│   ├── admin/              # Transport Admin Dashboard (Vehicles & Trips)
 │   ├── api/
 │   │   ├── auth/           # Login, register, logout, me routes
 │   │   ├── bookings/       # Booking CRUD & cancellation
 │   │   ├── trips/          # Trip CRUD & /:id/availability
 │   │   ├── vehicles/       # Vehicle fleet management
 │   │   └── users/          # User management
-│   ├── layout.tsx
-│   └── page.tsx
+│   ├── bookings/           # My Bookings page
+│   ├── login/              # Login page
+│   ├── register/           # Registration page
+│   ├── trips/              # Find Trips list & seat selection
+│   ├── layout.tsx          # Root layout
+│   └── page.tsx            # Landing homepage
+├── components/
+│   ├── Navbar.tsx          # Authenticated top navigation header
+│   └── AdminNavbar.tsx     # Admin dashboard navigation
 ├── lib/
 │   ├── db.ts               # Mongoose connection singleton
 │   ├── auth.ts             # JWT signing & verification helpers
@@ -165,6 +175,5 @@ src/
 │   └── index.ts            # Centralized model exports
 scripts/
 ├── seed.ts                 # Database seed script
-├── test-duplicate-booking.ts # Concurrency & seat protection test suite
-└── api-smoke-test.mjs      # Comprehensive API smoke test
+└── test-duplicate-booking.ts # Concurrency & seat protection test suite
 ```

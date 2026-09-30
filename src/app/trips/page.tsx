@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 interface Vehicle {
   _id: string;
@@ -28,59 +29,6 @@ interface ApiResponse {
   error?: string;
 }
 
-// ============================================================
-// TEMPORARY DEMO DATA - REMOVE BEFORE FINAL PUSH
-// Used only when the real API/database is unavailable.
-// ============================================================
-
-const DEMO_TRIPS: Trip[] = [
-  {
-    _id: "demo-trip-1",
-    vehicleId: {
-      _id: "demo-bus-1",
-      plateNumber: "BUS-1201",
-      type: "bus",
-      capacity: 40,
-      status: "available",
-    },
-    origin: "Bangkok",
-    destination: "Chiang Mai",
-    departureTime: "2026-10-01T08:30:00",
-    fare: 650,
-    status: "scheduled",
-  },
-  {
-    _id: "demo-trip-2",
-    vehicleId: {
-      _id: "demo-van-1",
-      plateNumber: "VAN-2204",
-      type: "van",
-      capacity: 12,
-      status: "available",
-    },
-    origin: "Bangkok",
-    destination: "Chiang Mai",
-    departureTime: "2026-10-01T11:00:00",
-    fare: 720,
-    status: "scheduled",
-  },
-  {
-    _id: "demo-trip-3",
-    vehicleId: {
-      _id: "demo-bus-2",
-      plateNumber: "BUS-3308",
-      type: "bus",
-      capacity: 32,
-      status: "available",
-    },
-    origin: "Bangkok",
-    destination: "Pattaya",
-    departureTime: "2026-10-02T09:15:00",
-    fare: 280,
-    status: "scheduled",
-  },
-];
-
 export default function TripsPage() {
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -100,7 +48,6 @@ function TripsContent() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
 
   const [vehicleFilter, setVehicleFilter] = useState("all");
   const [sortBy, setSortBy] = useState("earliest");
@@ -120,7 +67,6 @@ function TripsContent() {
           cache: "no-store",
         });
 
-        // Prevent HTML error pages from causing JSON parsing errors.
         const contentType = response.headers.get("content-type");
 
         if (!contentType?.includes("application/json")) {
@@ -134,19 +80,12 @@ function TripsContent() {
         }
 
         setTrips(result.data || []);
-        setDemoMode(false);
       } catch (err) {
-        console.warn(
-          "Trip API unavailable. Using temporary demo data.",
-          err
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to connect to database."
         );
-
-        // ======================================================
-        // TEMPORARY DEMO FALLBACK - REMOVE BEFORE FINAL PUSH
-        // ======================================================
-        setTrips(DEMO_TRIPS);
-        setDemoMode(true);
-        setError("");
       } finally {
         setLoading(false);
       }
@@ -158,8 +97,7 @@ function TripsContent() {
   const displayedTrips = useMemo(() => {
     let filtered = [...trips];
 
-    // Ignore searched date while using demo data.
-    if (selectedDate && !demoMode) {
+    if (selectedDate) {
       filtered = filtered.filter(
         (trip) => trip.departureTime.slice(0, 10) === selectedDate
       );
@@ -188,11 +126,11 @@ function TripsContent() {
     });
 
     return filtered;
-  }, [trips, selectedDate, vehicleFilter, sortBy, demoMode]);
+  }, [trips, selectedDate, vehicleFilter, sortBy]);
 
   return (
     <main className="trips-page">
-      <CustomerNavbar />
+      <Navbar />
 
       <section className="results-hero">
         <div className="results-container">
@@ -215,24 +153,6 @@ function TripsContent() {
 
       <section className="results-section">
         <div className="results-container">
-          {demoMode && (
-            <div
-              style={{
-                marginBottom: "16px",
-                padding: "12px 16px",
-                borderRadius: "10px",
-                background: "#fff7ed",
-                border: "1px solid #fed7aa",
-                color: "#9a3412",
-                fontSize: "14px",
-                fontWeight: 600,
-              }}
-            >
-              Demo mode: the database is unavailable, so sample trips are being
-              displayed for frontend testing.
-            </div>
-          )}
-
           <div className="search-summary">
             <div className="summary-location">
               <span className="summary-icon">●</span>
@@ -257,7 +177,7 @@ function TripsContent() {
             <div className="summary-separator" />
 
             <div className="summary-location">
-              <span className="calendar-symbol">▣</span>
+              <span className="calendar-symbol">📅</span>
 
               <div>
                 <small>DEPARTURE</small>
@@ -276,12 +196,13 @@ function TripsContent() {
                 <h3>Filters</h3>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setVehicleFilter("all");
                     setSortBy("earliest");
                   }}
                 >
-                  Reset
+                  Reset all
                 </button>
               </div>
 
@@ -296,15 +217,15 @@ function TripsContent() {
                 />
 
                 <FilterOption
-                  label="Bus"
-                  value="bus"
+                  label="Van"
+                  value="van"
                   current={vehicleFilter}
                   setCurrent={setVehicleFilter}
                 />
 
                 <FilterOption
-                  label="Van"
-                  value="van"
+                  label="Bus"
+                  value="bus"
                   current={vehicleFilter}
                   setCurrent={setVehicleFilter}
                 />
@@ -317,20 +238,19 @@ function TripsContent() {
 
                 <select
                   value={sortBy}
-                  onChange={(event) => setSortBy(event.target.value)}
+                  onChange={(e) => setSortBy(e.target.value)}
                 >
                   <option value="earliest">Earliest departure</option>
-                  <option value="price-low">Lowest price</option>
-                  <option value="price-high">Highest price</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
                 </select>
               </div>
 
               <div className="filter-note">
-                <span>✓</span>
-
+                <span>ℹ</span>
                 <p>
-                  All listed trips are currently scheduled and available for
-                  booking.
+                  Prices shown are per seat and include standard luggage
+                  allowance.
                 </p>
               </div>
             </aside>
@@ -347,9 +267,7 @@ function TripsContent() {
                   </h2>
 
                   <p>
-                    {demoMode
-                      ? "Sample journeys for frontend testing"
-                      : origin && destination
+                    {origin && destination
                       ? `${origin} → ${destination}`
                       : "All scheduled journeys"}
                   </p>
@@ -367,9 +285,8 @@ function TripsContent() {
               {!loading && error && (
                 <div className="results-state error-state">
                   <div className="state-symbol">!</div>
-                  <h3>We couldn't load the trips</h3>
+                  <h3>Unable to load trips</h3>
                   <p>{error}</p>
-
                   <button onClick={() => window.location.reload()}>
                     Try Again
                   </button>
@@ -378,16 +295,16 @@ function TripsContent() {
 
               {!loading && !error && displayedTrips.length === 0 && (
                 <div className="results-state">
-                  <div className="state-symbol">↔</div>
+                  <div className="state-symbol">🚌</div>
                   <h3>No trips found</h3>
-
                   <p>
-                    Try another route or departure date to find available
-                    journeys.
+                    We couldn&apos;t find any trips matching your search
+                    criteria. Try adjusting your departure city, destination,
+                    or date.
                   </p>
 
                   <button onClick={() => router.push("/")}>
-                    Change Search
+                    Clear Search Fares
                   </button>
                 </div>
               )}
@@ -405,74 +322,22 @@ function TripsContent() {
           </div>
         </div>
       </section>
-    </main>
-  );
-}
 
-function CustomerNavbar() {
-  return (
-    <header className="navbar">
-      <div className="nav-container">
-        <a href="/" className="brand">
-          <span className="brand-icon">
+      <footer>
+        <div className="footer-brand">
+          <span className="brand-icon footer-icon">
             <BusIcon />
           </span>
 
-          <span>
+          <div>
             <strong>GoRoute</strong>
-            <small>VAN & BUS BOOKING</small>
-          </span>
-        </a>
-
-        <nav className="nav-links">
-          <a href="/">Home</a>
-
-          <a className="active" href="/trips">
-            Find Trips
-          </a>
-
-          <a href="/bookings">My Bookings</a>
-        </nav>
-
-        <div className="nav-actions">
-          <a href="/login" className="login-link">
-            Log in
-          </a>
-
-          <a href="/register" className="primary-button small-button">
-            Sign up
-          </a>
+            <p>Van &amp; Bus Booking System</p>
+          </div>
         </div>
-      </div>
-    </header>
-  );
-}
 
-function FilterOption({
-  label,
-  value,
-  current,
-  setCurrent,
-}: {
-  label: string;
-  value: string;
-  current: string;
-  setCurrent: (value: string) => void;
-}) {
-  return (
-    <label className="radio-option">
-      <input
-        type="radio"
-        name="vehicle"
-        value={value}
-        checked={current === value}
-        onChange={() => setCurrent(value)}
-      />
-
-      <span className="custom-radio" />
-
-      {label}
-    </label>
+        <p>© 2026 GoRoute. Web Design &amp; Development Project.</p>
+      </footer>
+    </main>
   );
 }
 
@@ -489,7 +354,7 @@ function TripCard({
     <article className="trip-card">
       <div className="vehicle-visual">
         <div className="vehicle-circle">
-          <BusIcon />
+          <BusMiniIcon />
         </div>
 
         <span>{formatVehicleType(trip.vehicleId?.type)}</span>
@@ -520,22 +385,13 @@ function TripCard({
 
         <div className="trip-meta">
           <span>
-            <BusMiniIcon />
-            {formatVehicleType(trip.vehicleId?.type)}
+            <SeatMiniIcon />
+            {trip.vehicleId?.capacity || 0} Total Seats
           </span>
 
-          {trip.vehicleId?.capacity && (
-            <span>
-              <SeatMiniIcon />
-              {trip.vehicleId.capacity} seats
-            </span>
-          )}
-
-          {trip.vehicleId?.plateNumber && (
-            <span className="plate-number">
-              {trip.vehicleId.plateNumber}
-            </span>
-          )}
+          <span className="plate-number">
+            Vehicle #{trip.vehicleId?.plateNumber || "N/A"}
+          </span>
         </div>
       </div>
 
@@ -558,10 +414,38 @@ function TripCard({
   );
 }
 
+function FilterOption({
+  label,
+  value,
+  current,
+  setCurrent,
+}: {
+  label: string;
+  value: string;
+  current: string;
+  setCurrent: (value: string) => void;
+}) {
+  const checked = current === value;
+
+  return (
+    <label className="radio-option">
+      <input
+        type="radio"
+        name="vehicleFilter"
+        value={value}
+        checked={checked}
+        onChange={() => setCurrent(value)}
+      />
+      <span className="custom-radio" />
+      <span>{label}</span>
+    </label>
+  );
+}
+
 function LoadingScreen() {
   return (
     <main className="trips-page">
-      <CustomerNavbar />
+      <Navbar />
 
       <div className="results-state full-loading">
         <div className="loading-spinner" />

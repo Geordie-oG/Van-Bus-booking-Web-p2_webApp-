@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   const router = useRouter();
@@ -29,37 +30,7 @@ export default function Home() {
 
   return (
     <main>
-      <header className="navbar">
-        <div className="nav-container">
-          <a href="/" className="brand">
-            <span className="brand-icon">
-              <BusIcon />
-            </span>
-
-            <span>
-              <strong>GoRoute</strong>
-              <small>VAN & BUS BOOKING</small>
-            </span>
-          </a>
-
-          <nav className="nav-links">
-            <a className="active" href="/">
-              Home
-            </a>
-            <a href="/trips">Find Trips</a>
-            <a href="/bookings">My Bookings</a>
-          </nav>
-
-          <div className="nav-actions">
-            <a href="/login" className="login-link">
-              Log in
-            </a>
-            <a href="/register" className="primary-button small-button">
-              Sign up
-            </a>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <section className="hero">
         <div className="hero-overlay" />
@@ -196,7 +167,7 @@ export default function Home() {
             <h3>Clear Pricing</h3>
             <p>
               View your trip fare before confirming so you always know what
-              you're booking.
+              you&apos;re booking.
             </p>
           </article>
 
@@ -232,11 +203,11 @@ export default function Home() {
           </span>
           <div>
             <strong>GoRoute</strong>
-            <p>Van & Bus Booking System</p>
+            <p>Van &amp; Bus Booking System</p>
           </div>
         </div>
 
-        <p>© 2026 GoRoute. Web Design & Development Project.</p>
+        <p>© 2026 GoRoute. Web Design &amp; Development Project.</p>
       </footer>
     </main>
   );

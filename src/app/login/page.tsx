@@ -20,13 +20,8 @@ export default function LoginPage() {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
@@ -35,7 +30,20 @@ export default function LoginPage() {
         throw new Error(result.message || result.error || "Login failed");
       }
 
-      router.push("/");
+      // Store user and token in localStorage for Navbar
+      if (result.data?.user) {
+        localStorage.setItem("user", JSON.stringify(result.data.user));
+      }
+      if (result.data?.token) {
+        localStorage.setItem("auth_token", result.data.token);
+      }
+
+      // Redirect admin to admin portal, others to home
+      if (result.data?.user?.role === "administrator") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
