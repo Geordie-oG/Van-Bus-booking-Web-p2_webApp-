@@ -69,7 +69,7 @@ async function seed() {
       origin: "Bangkok",
       destination: "Pattaya",
       departureTime: trip1Future,
-      fare: 15,
+      fare: 160,
       status: "scheduled",
     });
 
@@ -79,7 +79,7 @@ async function seed() {
       origin: "Bangkok",
       destination: "Chiang Mai",
       departureTime: trip2Future,
-      fare: 35,
+      fare: 550,
       status: "scheduled",
     });
 
@@ -89,7 +89,7 @@ async function seed() {
       origin: "Phuket",
       destination: "Krabi",
       departureTime: trip3Past,
-      fare: 12,
+      fare: 220,
       status: "departed",
     });
     console.log(`✓ Seeded 3 trips: 2 scheduled upcoming trips & 1 departed trip`);
