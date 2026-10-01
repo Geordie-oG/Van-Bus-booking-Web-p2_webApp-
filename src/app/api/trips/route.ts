@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { requireAdmin } from "@/lib/auth";
 import { Trip, Vehicle } from "@/models";
 import mongoose from "mongoose";
 
@@ -35,6 +36,12 @@ export async function GET(request: NextRequest) {
 // POST /api/trips: Create a scheduled trip
 export async function POST(request: NextRequest) {
   try {
+    // Scheduling routes is restricted to administrators.
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return errorResponse("Forbidden: administrator access required", 403);
+    }
+
     await connectDB();
     const body = await request.json();
     const { vehicleId, origin, destination, departureTime, fare, status } = body;

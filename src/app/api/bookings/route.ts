@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { getAuthUser } from "@/lib/auth";
 import { Booking, Trip, Vehicle, User } from "@/models";
 import mongoose from "mongoose";
 
@@ -14,9 +15,13 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId");
     const status = searchParams.get("status");
 
-    // Optional auth header for development/integration: x-user-id or x-user-role
-    const headerUserId = request.headers.get("x-user-id");
-    const headerUserRole = request.headers.get("x-user-role");
+    // Bookings are personal data: a valid session (JWT cookie or Bearer token)
+    // is required, and customers may only ever read their own bookings. The
+    // previous x-user-id / x-user-role headers were forgeable by any caller.
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return errorResponse("Authentication required. Please log in.", 401);
+    }
 
     const query: Record<string, any> = {};
 
@@ -24,11 +29,14 @@ export async function GET(request: NextRequest) {
       query.tripId = new mongoose.Types.ObjectId(tripId);
     }
 
-    // Role-based filtering: If user is a customer, only allow viewing their own bookings
-    if (headerUserRole === "customer" && headerUserId) {
-      query.userId = new mongoose.Types.ObjectId(headerUserId);
-    } else if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-      query.userId = new mongoose.Types.ObjectId(userId);
+    // Role-based filtering: customers are always scoped to their own bookings,
+    // administrators keep the optional userId filter.
+    if (authUser.role === "administrator") {
+      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+        query.userId = new mongoose.Types.ObjectId(userId);
+      }
+    } else {
+      query.userId = new mongoose.Types.ObjectId(authUser.userId);
     }
 
     if (status) {
@@ -54,15 +62,24 @@ export async function GET(request: NextRequest) {
 // POST /api/bookings: Create a new booking with full validation & race-condition duplicate protection
 export async function POST(request: NextRequest) {
   try {
+    // A booking must belong to an authenticated user.
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return errorResponse("Authentication required. Please log in to book seats.", 401);
+    }
+
     await connectDB();
     const body = await request.json();
 
-    const { tripId, userId, seatNumbers, passengerName } = body;
+    // The reservation always belongs to the session user. A client-supplied
+    // userId is ignored so nobody can book on someone else's account.
+    const { tripId, seatNumbers, passengerName } = body;
+    const userId = authUser.userId;
 
     // 1. Validate required fields
-    if (!tripId || !userId || !seatNumbers || !passengerName) {
+    if (!tripId || !seatNumbers || !passengerName) {
       return errorResponse(
-        "Missing required fields: tripId, userId, seatNumbers, and passengerName are required",
+        "Missing required fields: tripId, seatNumbers, and passengerName are required",
         400
       );
     }

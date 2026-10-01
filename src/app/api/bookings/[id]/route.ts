@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { getAuthUser } from "@/lib/auth";
 import { Booking, Trip } from "@/models";
 import mongoose from "mongoose";
 
@@ -29,13 +30,14 @@ export async function GET(
       return errorResponse("Booking not found", 404);
     }
 
-    // Role check: If customer, ensure they own the booking
-    const headerUserId = request.headers.get("x-user-id");
-    const headerUserRole = request.headers.get("x-user-role");
+    // Ownership check based on the verified session (not forgeable headers)
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return errorResponse("Authentication required. Please log in.", 401);
+    }
     if (
-      headerUserRole === "customer" &&
-      headerUserId &&
-      (booking.userId as any)?._id?.toString() !== headerUserId
+      authUser.role !== "administrator" &&
+      (booking.userId as any)?._id?.toString() !== authUser.userId
     ) {
       return errorResponse("Unauthorized: You can only view your own bookings", 403);
     }
@@ -77,14 +79,12 @@ export async function PATCH(
 
     const trip = booking.tripId as any;
 
-    // Check ownership if user header is present
-    const headerUserId = request.headers.get("x-user-id");
-    const headerUserRole = request.headers.get("x-user-role");
-    if (
-      headerUserRole === "customer" &&
-      headerUserId &&
-      booking.userId.toString() !== headerUserId
-    ) {
+    // Ownership check based on the verified session
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return errorResponse("Authentication required. Please log in.", 401);
+    }
+    if (authUser.role !== "administrator" && booking.userId.toString() !== authUser.userId) {
       return errorResponse("Unauthorized: You can only modify your own bookings", 403);
     }
 
@@ -147,14 +147,12 @@ export async function DELETE(
       );
     }
 
-    // Check customer ownership
-    const headerUserId = request.headers.get("x-user-id");
-    const headerUserRole = request.headers.get("x-user-role");
-    if (
-      headerUserRole === "customer" &&
-      headerUserId &&
-      booking.userId.toString() !== headerUserId
-    ) {
+    // Ownership check based on the verified session
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return errorResponse("Authentication required. Please log in.", 401);
+    }
+    if (authUser.role !== "administrator" && booking.userId.toString() !== authUser.userId) {
       return errorResponse("Unauthorized: You can only cancel your own bookings", 403);
     }
 

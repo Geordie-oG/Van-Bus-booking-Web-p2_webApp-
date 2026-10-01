@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
-}
+// NOTE: the environment is validated inside connectDB() instead of at module
+// scope. Reading / throwing at import time breaks `next build`, because Next.js
+// imports every route module while collecting page data - so a missing
+// MONGODB_URI would fail the build itself (and therefore any CI/CD deploy)
+// rather than returning a proper error at request time.
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -27,12 +27,17 @@ export async function connectDB() {
     return cached.conn;
   }
 
+  const MONGODB_URI = process.env.MONGODB_URI;
+  if (!MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }

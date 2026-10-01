@@ -55,8 +55,12 @@ npm install
 Create a `.env.local` file in the project root:
 
 ```env
-# MongoDB Atlas Connection String
-MONGODB_URI=mongodb+srv://u6711266_db_user:abac2026webp@cluster0.epkwrwx.mongodb.net/van_bus_booking?retryWrites=true&w=majority&appName=Cluster0
+# MongoDB Atlas Connection String (NEVER commit real credentials - this repo is public)
+MONGODB_URI=mongodb+srv://<db-user>:<db-password>@<cluster-host>/van_bus_booking?retryWrites=true&w=majority
+
+# Optional: required only if you want to allow promoting an account to
+# administrator through /api/auth/register (leave unset for normal use)
+# ADMIN_INVITE_CODE=change_me
 
 # JWT Authentication Secret
 JWT_SECRET=super_secret_jwt_key_csx4107_project2

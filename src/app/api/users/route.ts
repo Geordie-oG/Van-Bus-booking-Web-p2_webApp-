@@ -2,10 +2,16 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
 import { User } from "@/models";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword, requireAdmin } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // User records (names, emails, roles) are only visible to administrators.
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return errorResponse("Forbidden: administrator access required", 403);
+    }
+
     await connectDB();
     const users = await User.find({}, "-passwordHash").sort({ createdAt: -1 }).lean();
     return successResponse(users, "Users retrieved successfully");
@@ -17,6 +23,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Creating users directly is an administrative action.
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return errorResponse("Forbidden: administrator access required", 403);
+    }
+
     await connectDB();
     const body = await request.json();
     const { name, email, password, role } = body;

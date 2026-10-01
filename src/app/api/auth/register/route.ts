@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     const body = await request.json();
-    const { name, email, password, role } = body;
+    const { name, email, password, role, adminCode } = body;
 
     if (!name || !email || !password) {
       return errorResponse("Name, email, and password are required", 400);
@@ -28,7 +28,16 @@ export async function POST(request: NextRequest) {
 
     // Hash password with bcrypt
     const passwordHash = await hashPassword(password);
-    const assignedRole = role === "administrator" ? "administrator" : "customer";
+
+    // SECURITY: public registration always creates a customer. Anyone could
+    // otherwise self-assign the administrator role and take over the admin
+    // portal on a public deployment. Administrator accounts are created by the
+    // seed script, or by supplying the private ADMIN_INVITE_CODE.
+    const inviteCode = process.env.ADMIN_INVITE_CODE;
+    const assignedRole =
+      role === "administrator" && inviteCode && adminCode === inviteCode
+        ? "administrator"
+        : "customer";
 
     const user = await User.create({
       name: name.trim(),

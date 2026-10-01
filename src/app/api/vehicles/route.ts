@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { successResponse, errorResponse } from "@/lib/api-response";
+import { requireAdmin } from "@/lib/auth";
 import { Vehicle } from "@/models";
 
 // GET /api/vehicles: List vehicles
@@ -18,6 +19,12 @@ export async function GET() {
 // POST /api/vehicles: Create a vehicle
 export async function POST(request: NextRequest) {
   try {
+    // Fleet management is restricted to administrators.
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return errorResponse("Forbidden: administrator access required", 403);
+    }
+
     await connectDB();
     const body = await request.json();
     const { plateNumber, type, capacity, status } = body;

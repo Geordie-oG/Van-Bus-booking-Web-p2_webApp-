@@ -1,8 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
-import { User, IUser } from "@/models";
-import { connectDB } from "./db";
 
 const JWT_SECRET = process.env.JWT_SECRET || "csx4107_booking_system_secret_key_2026";
 const COOKIE_NAME = "auth_token";
@@ -56,27 +54,26 @@ export async function getAuthUser(request: NextRequest): Promise<AuthPayload | n
     if (decoded) return decoded;
   }
 
-  // 3. Fallback development headers (x-user-id, x-user-role)
-  const headerUserId = request.headers.get("x-user-id");
-  const headerUserRole = (request.headers.get("x-user-role") || "customer") as "customer" | "administrator";
-  if (headerUserId) {
-    try {
-      await connectDB();
-      const user = await User.findById(headerUserId).lean();
-      if (user) {
-        return {
-          userId: (user as any)._id.toString(),
-          name: (user as any).name,
-          email: (user as any).email,
-          role: (user as any).role || headerUserRole,
-        };
-      }
-    } catch {
-      // ignore
-    }
-  }
+  // NOTE: the former x-user-id / x-user-role development headers have been
+  // removed on purpose. They let any caller impersonate any user (including an
+  // administrator) by simply guessing an id, which is unacceptable on a public
+  // deployment. Identity now comes only from a signed JWT (Authorization header
+  // or the HTTP-only auth cookie).
 
   return null;
+}
+
+// Convenience guards for route handlers.
+export async function requireAuth(request: NextRequest): Promise<AuthPayload | null> {
+  return getAuthUser(request);
+}
+
+export async function requireAdmin(request: NextRequest): Promise<AuthPayload | null> {
+  const user = await getAuthUser(request);
+  if (!user || user.role !== "administrator") {
+    return null;
+  }
+  return user;
 }
 
 export { COOKIE_NAME };
