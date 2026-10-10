@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // The reservation always belongs to the session user. A client-supplied
     // userId is ignored so nobody can book on someone else's account.
-    const { tripId, seatNumbers, passengerName } = body;
+    const { tripId, seatNumbers, passengerName, contactEmail, contactPhone } = body;
     const userId = authUser.userId;
 
     // 1. Validate required fields
@@ -94,6 +94,14 @@ export async function POST(request: NextRequest) {
 
     if (typeof passengerName !== "string" || passengerName.trim().length < 2) {
       return errorResponse("Passenger name must be at least 2 characters long", 400);
+    }
+
+    if (contactEmail && !/^\S+@\S+\.\S+$/.test(String(contactEmail))) {
+      return errorResponse("A valid contact email is required", 400);
+    }
+
+    if (contactPhone && String(contactPhone).trim().length < 6) {
+      return errorResponse("A valid contact phone number is required", 400);
     }
 
     // 2. Validate seatNumbers array
@@ -178,6 +186,8 @@ export async function POST(request: NextRequest) {
         userId: new mongoose.Types.ObjectId(userId),
         seatNumbers: uniqueSeatsInRequest.sort((a, b) => a - b),
         passengerName: passengerName.trim(),
+        contactEmail: contactEmail ? String(contactEmail).trim().toLowerCase() : undefined,
+        contactPhone: contactPhone ? String(contactPhone).trim() : undefined,
         status: "confirmed",
       });
 
@@ -209,4 +219,3 @@ export async function POST(request: NextRequest) {
     return errorResponse(error.message || "Failed to create booking", 500);
   }
 }
-

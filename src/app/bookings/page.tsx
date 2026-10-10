@@ -48,10 +48,14 @@ export default function BookingsPage() {
 
     try {
       const authResponse = await fetch("/api/auth/me", { cache: "no-store" });
-      const authResult = await authResponse.json();
+      let authResult = await authResponse.json();
 
       if (!authResponse.ok) {
-        throw new Error("Please log in to view your bookings.");
+        const guestResponse = await fetch("/api/auth/guest", { method: "POST" });
+        authResult = await guestResponse.json();
+        if (!guestResponse.ok) {
+          throw new Error("Unable to start your private guest session.");
+        }
       }
 
       const currentUser: AuthUser = authResult.data;
@@ -133,10 +137,10 @@ export default function BookingsPage() {
 
         {!loading && error && (
           <div className="bookings-empty">
-            <h2>Sign in required</h2>
+            <h2>Unable to load bookings</h2>
             <p>{error}</p>
-            <Link href="/login" className="primary-action">
-              Sign In
+            <Link href="/trips" className="primary-action">
+              Find a Trip
             </Link>
           </div>
         )}

@@ -107,7 +107,18 @@ function PassengerContent({
             setEmail(currentUser.email);
           }
         } else {
-          setAuthUser(null);
+          const guestResponse = await fetch("/api/auth/guest", {
+            method: "POST",
+          });
+          const guestResult = await guestResponse.json();
+
+          if (!guestResponse.ok) {
+            throw new Error(
+              guestResult.message || guestResult.error || "Unable to start guest booking"
+            );
+          }
+
+          setAuthUser(guestResult.data);
         }
       } catch (err) {
         setError(
@@ -158,21 +169,16 @@ function PassengerContent({
       return;
     }
 
-    if (!authUser) {
-      setError("Please log in before confirming your booking.");
-      return;
-    }
-
     /*
      * /api/auth/me returns userId from the JWT payload.
      * _id/id are kept as fallbacks in case the API response
      * changes later.
      */
     const userId =
-      authUser.userId || authUser._id || authUser.id;
+      authUser?.userId || authUser?._id || authUser?.id;
 
     if (!userId) {
-      setError("Unable to identify the logged-in user.");
+      setError("Unable to start your private guest session. Please refresh and try again.");
       return;
     }
 
@@ -189,6 +195,8 @@ function PassengerContent({
           userId,
           seatNumbers: selectedSeats,
           passengerName: passengerName.trim(),
+          contactEmail: email.trim(),
+          contactPhone: phone.trim(),
         }),
       });
 
@@ -291,17 +299,6 @@ function PassengerContent({
             <p>Confirmation</p>
           </div>
         </div>
-
-        {!authUser && (
-          <div className="demo-notice">
-            <strong>Login required</strong>
-            <span>
-              Please{" "}
-              <Link href="/login">sign in</Link>{" "}
-              before confirming your booking.
-            </span>
-          </div>
-        )}
 
         <div className="passenger-layout">
           <section className="passenger-form-card">

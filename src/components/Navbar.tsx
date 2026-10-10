@@ -136,14 +136,9 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <>
-              <Link href="/login" className="login-link">
-                Log in
-              </Link>
-              <Link href="/register" className="primary-button small-button">
-                Sign up
-              </Link>
-            </>
+            <span style={{ color: "#52677d", fontSize: 13, fontWeight: 700 }}>
+              Guest booking — no account needed
+            </span>
           )}
         </div>
       </div>

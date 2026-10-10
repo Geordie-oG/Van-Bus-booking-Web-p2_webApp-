@@ -9,6 +9,8 @@ export interface IBooking extends Document {
   userId: Types.ObjectId | IUser;
   seatNumbers: number[];
   passengerName: string;
+  contactEmail?: string;
+  contactPhone?: string;
   status: BookingStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -61,6 +63,15 @@ const BookingSchema = new Schema<IBooking>(
       trim: true,
       minlength: [2, "Passenger name must be at least 2 characters"],
     },
+    contactEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    contactPhone: {
+      type: String,
+      trim: true,
+    },
     status: {
       type: String,
       enum: ["confirmed", "cancelled", "pending"],
@@ -89,4 +100,3 @@ export const Booking: Model<IBooking> =
   mongoose.models.Booking || mongoose.model<IBooking>("Booking", BookingSchema);
 
 export default Booking;
-
